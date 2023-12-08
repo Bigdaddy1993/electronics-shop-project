@@ -42,8 +42,7 @@ def test_instantiate_from_csv():
         f.write(file_csv)
 
 
-@pytest.fixture
-def copy():
+def test_main():
     item1 = Item("Смартфон", 10000, 20)
     assert repr(item1) == "Item('Смартфон', 10000, 20)"
     assert str(item1) == 'Смартфон'
