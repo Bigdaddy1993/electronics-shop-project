@@ -37,6 +37,11 @@ class Item:
         """
         return self.name
 
+    def __add__(self, other):
+        if isinstance(other, Item):
+            return self.quantity + other.quantity
+        return None
+
     @property
     def name(self) -> str:
         """ Возвращает наименование товара. """
