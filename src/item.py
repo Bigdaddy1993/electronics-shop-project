@@ -20,6 +20,20 @@ class Item:
         self.__name = name
         self.price = price
         self.quantity = quantity
+        self.all.append(self)
+
+    @property
+    def name(self) -> str:
+        """ Возвращает наименование товара. """
+        return self.__name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        """ Устанавливает наименование товара. """
+        if len(name) > 10:
+            self.__name = name[:10]
+        else:
+            self.__name = name
 
     def __repr__(self):
         """
@@ -42,19 +56,6 @@ class Item:
             return self.quantity + other.quantity
         return None
 
-    @property
-    def name(self) -> str:
-        """ Возвращает наименование товара. """
-        return self.__name
-
-    @name.setter
-    def name(self, name: str) -> None:
-        """ Устанавливает наименование товара. """
-        if len(name) > 10:
-            self.__name = name[:10]
-        else:
-            self.__name = name
-
     def calculate_total_price(self) -> float:
         """
         Рассчитывает общую стоимость конкретного товара в магазине.
@@ -72,16 +73,29 @@ class Item:
     @classmethod
     def instantiate_from_csv(cls, filename):
         """инициализирует экземпляры класса Item данными из файла src/items.csv"""
-        with open(filename, 'r') as f:
-            reader = csv.DictReader(f, delimiter=',')
-            for line in reader:
-                name = line['name']
-                price = Item.string_to_number(line['price'])
-                quantity = int(line['quantity'])
-                item = cls(name, price, quantity)
-                Item.all.append(item)
+        cls.all.clear()
+        try:
+            with open(filename, encoding="windows-1251") as f:
+                reader = csv.DictReader(f, delimiter=',')
+                for line in reader:
+                    if 'name' not in line or 'price' not in line or 'quantity' not in line:
+                        raise InstantiateCSVError(f'Файл {filename} поврежден')
+                    name = line['name']
+                    price = float(line['price'])
+                    quantity = cls.string_to_number(line['quantity'])
+                    cls(name, price, quantity)
+        except FileNotFoundError:
+            raise FileNotFoundError(f'Отсутствует файл {filename}')
 
     @staticmethod
-    def string_to_number(string: str) -> float:
+    def string_to_number(string: str) -> int:
         """Преобразование строки в число"""
         return int(math.floor(float((string.replace(',', '.')))))
+
+
+class InstantiateCSVError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
